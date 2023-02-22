@@ -59,16 +59,19 @@ currencyXchange <- function(costdb, costcolumn, yearcolumn = "Applicable_year", 
   currency.name <- read_csv(url(urlfile))
   
   
-  costUSD <- do.call(rbind,lapply(costdb$Cost_ID, function(x, costdb.,
+   costUSD <- do.call(rbind,lapply(costdb$Cost_ID, function(x, costdb.,
                                                            cost, 
                                                            year,  
                                                            currency){
     
     currency.code = costdb.[which(costdb.$Cost_ID == x), currency]
     year.app = costdb.[which(costdb.$Cost_ID == x), year]
-    currency.country = currency.name[which(currency.name$Currency_code == currency.code), colnames(currency.name)=="ISO"]
+    currency.country <- currency.name[which(currency.name$Currency_code == currency.code), colnames(currency.name)=="ISO"]
 
     if(isTRUE(length(currency.country$ISO) == 0 & currency.code == "REA")){currency.country = "BRA"}else{
+      if(isTRUE(length(currency.country$ISO) == 0 & currency.code == "SOL")){currency.country = "PER"}else{
+        if(isTRUE(length(currency.country$ISO) == 0 & currency.code == "COL")){currency.country = "COL"}else{
+      
       
       if(length(currency.country$ISO)>1){ 
         if(currency.code == "EUR"){currency.country = "EMU"} else {
@@ -78,7 +81,7 @@ currencyXchange <- function(costdb, costcolumn, yearcolumn = "Applicable_year", 
         } 
       } else {currency.country <- currency.country[[1:1]]}
       
-    }
+    }}}
     
     currency.country <- currency.country[[1:1]]
     
