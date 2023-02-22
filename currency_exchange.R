@@ -60,23 +60,28 @@ currencyXchange <- function(costdb, costcolumn, yearcolumn = "Applicable_year", 
   
   
   costUSD <- do.call(rbind,lapply(costdb$Cost_ID, function(x, costdb.,
-                                                          cost, 
-                                                          year,  
-                                                          currency){
+                                                           cost, 
+                                                           year,  
+                                                           currency){
     
     currency.code = costdb.[which(costdb.$Cost_ID == x), currency]
     year.app = costdb.[which(costdb.$Cost_ID == x), year]
-    currency.country <- currency.name[which(currency.name$Currency_code == currency.code), colnames(currency.name)=="ISO"]
+    currency.country = currency.name[which(currency.name$Currency_code == currency.code), colnames(currency.name)=="ISO"]
+
+    if(isTRUE(length(currency.country$ISO) == 0 & currency.code == "REA")){currency.country = "BRA"}else{
       
-     if(length(currency.country$ISO)>1){ 
-       if(currency.code == "EUR"){currency.country = "EMU"} else {
-         if(currency.code == "USD"){currency.country = "USA"} else {
-           currency.country <- currency.name[which(currency.name$Currency_code == currency.code & currency.name$country_type != "0"), colnames(currency.name)=="ISO"]}
-       } 
-       } else {currency.country <- currency.country[[1:1]]}
+      if(length(currency.country$ISO)>1){ 
+        if(currency.code == "EUR"){currency.country = "EMU"} else {
+          if(currency.code == "USD"){currency.country = "USA"} else {
+            
+            currency.country <- currency.name[which(currency.name$Currency_code == currency.code & currency.name$country_type != "0"), colnames(currency.name)=="ISO"]}
+        } 
+      } else {currency.country <- currency.country[[1:1]]}
+      
+    }
     
     currency.country <- currency.country[[1:1]]
-  
+    
     Xchange.rate = Xrate.dat[which(Xrate.dat$iso3c == currency.country & Xrate.dat$date == year.app), colnames(Xrate.dat)=="PA.NUS.FCRF"]
     cost.raw.local = costdb.[which(costdb.$Cost_ID == x), cost]
     cost.USD <- cost.raw.local/Xchange.rate
@@ -87,6 +92,7 @@ currencyXchange <- function(costdb, costcolumn, yearcolumn = "Applicable_year", 
     
   }, costdb. = costdb, cost = costcolumn, year = yearcolumn, currency = currencycolumn
   ))
+  
   
   return(df <- data.frame(dplyr::bind_cols(costdb, costUSD))) #this returns a new data frame - probably best to add to current dataset but not 100% how to do it
   
