@@ -31,7 +31,7 @@ options(stringsAsFactors=FALSE)
 ##' @param originalyear Year of the current cost value - use when @param yearcolumn is null because costs have already been standardized to a given year.  
 ##' @param method Name of the method to use to adjust costs for inflation - currently only CPI available.
 
-adjustInflation <- function(costdb, costcolumn, yearcolumn = NULL, year = "2020", country_iso3 = "USA", originalyear = NULL, method = "CPI"){
+adjustInflation <- function(costdb, costcolumn, yearcolumn = NULL, year, country_iso3 = "USA", originalyear = NULL, method = "CPI"){
   
   if(is.null(costcolumn))
   {
