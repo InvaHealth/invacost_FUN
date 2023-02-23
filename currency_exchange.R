@@ -59,7 +59,7 @@ currencyXchange <- function(costdb, costcolumn, yearcolumn = "Applicable_year", 
   currency.name <- read_csv(url(urlfile))
   
   
-   costUSD <- do.call(rbind,lapply(costdb$Cost_ID, function(x, costdb.,
+    costUSD <- do.call(rbind,lapply(costdb$Cost_ID, function(x, costdb.,
                                                            cost, 
                                                            year,  
                                                            currency){
@@ -67,24 +67,30 @@ currencyXchange <- function(costdb, costcolumn, yearcolumn = "Applicable_year", 
     currency.code = costdb.[which(costdb.$Cost_ID == x), currency]
     year.app = costdb.[which(costdb.$Cost_ID == x), year]
     currency.country <- currency.name[which(currency.name$Currency_code == currency.code), colnames(currency.name)=="ISO"]
-
+    
+    
     if(isTRUE(length(currency.country$ISO) == 0 & currency.code == "REA")){currency.country = "BRA"}else{
       if(isTRUE(length(currency.country$ISO) == 0 & currency.code == "SOL")){currency.country = "PER"}else{
         if(isTRUE(length(currency.country$ISO) == 0 & currency.code == "COL")){currency.country = "COL"}else{
-      
-      
-      if(length(currency.country$ISO)>1){ 
-        if(currency.code == "EUR"){currency.country = "EMU"} else {
-          if(currency.code == "USD"){currency.country = "USA"} else {
-            
-            currency.country <- currency.name[which(currency.name$Currency_code == currency.code & currency.name$country_type != "0"), colnames(currency.name)=="ISO"]}
-        } 
-      } else {currency.country <- currency.country[[1:1]]}
-      
-    }}}
+          
+          
+          if(length(currency.country$ISO)>1){ 
+            if(currency.code == "EUR"){currency.country = "EMU"} else {
+              if(currency.code == "USD"){currency.country = "USA"} else {
+                if(currency.code == "XPF"){currency.country = "NCL"} else {
+                  
+                  currency.country <- currency.name[which(currency.name$Currency_code == currency.code & currency.name$country_type != "0" & currency.name$country_type != "Dependency"), colnames(currency.name)=="ISO"]
+                  currency.country <-currency.country[1, colnames(currency.country)=="ISO"]
+                }
+              }
+            } 
+          } else {currency.country <- currency.country[[1]]}
+          
+        }}}
     
-    currency.country <- currency.country[[1:1]]
     
+    currency.country <- currency.country[[1]]
+
     Xchange.rate = Xrate.dat[which(Xrate.dat$iso3c == currency.country & Xrate.dat$date == year.app), colnames(Xrate.dat)=="PA.NUS.FCRF"]
     cost.raw.local = costdb.[which(costdb.$Cost_ID == x), cost]
     cost.USD <- cost.raw.local/Xchange.rate
